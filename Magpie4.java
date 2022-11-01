@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.ArrayList;
+
 /**
  * A program to carry on conversations with a human user.
  * This version:
@@ -16,9 +19,15 @@ public class Magpie4
 	 * Get a default greeting 	
 	 * @return a greeting
 	 */	
+	String name;
+	boolean justGreeted;
+	ArrayList<String> likes = new ArrayList<String>();
+	ArrayList<String> dislikes = new ArrayList<String>();
+
 	public String getGreeting()
 	{
-		return "Hello, let's talk.";
+		justGreeted = true;
+		return "Hello, let's talk. What's your name?";
 	}
 	
 	/**
@@ -34,6 +43,18 @@ public class Magpie4
 		if (statement.length() == 0)
 		{
 			response = "Say something, please.";
+		}
+
+		if (justGreeted == true){
+			if (findKeyword(statement, "My name is", 0) >= 0){
+				int startPos = findKeyword(statement, "My name is", 0) + 10;
+				name = statement.substring(startPos).trim();
+			}
+			else{
+				name = statement;
+			}
+			response = "Nice to meet you " + name + ", I'm Lionel Messi, striker for PSG, do you like Soccer?";
+			justGreeted = false;
 		}
 
 		else if (findKeyword(statement, "no") >= 0)
@@ -52,6 +73,38 @@ public class Magpie4
 		else if (findKeyword(statement, "I want to", 0) >= 0)
 		{
 			response = transformIWantToStatement(statement);
+		}
+
+		else if (findKeyword(statement, "I like", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I like", 0) + 6;
+			likes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			response = "I like " + word + " too";
+		}
+
+		else if (findKeyword(statement, "I love", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I love", 0) + 6;
+			likes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			response = "I love " + word + " too";
+		}
+
+		else if (findKeyword(statement, "I don't like", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I don't like", 0) + 12;
+			dislikes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			response = "I don't like " + word + " either";
+		}
+
+		else if (findKeyword(statement, "I hate", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I hate", 0) + 6;
+			dislikes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			response = "I hate " + word + " too";
 		}
 
 		else
