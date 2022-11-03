@@ -20,9 +20,13 @@ public class Magpie4
 	 * @return a greeting
 	 */	
 	String name;
+	String lastResponse = "";
 	boolean justGreeted;
+	boolean doesDislike = false;
 	ArrayList<String> likes = new ArrayList<String>();
 	ArrayList<String> dislikes = new ArrayList<String>();
+	String[] messiLikes = new String[] {"soccer", "goals", "winning", "barcelona", "psg"};
+	String[] messiDislikes = new String[] {"ronaldo", "losing", "real madrid", "speed"};
 
 	public String getGreeting()
 	{
@@ -59,7 +63,21 @@ public class Magpie4
 
 		else if (findKeyword(statement, "no") >= 0)
 		{
-			response = "Why so negative?";
+			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
+				response = getResponse(transformDoYouQuestion(lastResponse, "no"));
+			}
+			else{
+				response = "Why so negative?";
+			}
+		}
+		else if (findKeyword(statement, "yes") >= 0)
+		{
+			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
+				response = getResponse(transformDoYouQuestion(lastResponse, "yes"));
+			}
+			else{
+				response = "Nice. " + getRandomQuestion();
+			}
 		}
 		else if (findKeyword(statement, "mother") >= 0
 				|| findKeyword(statement, "father") >= 0
@@ -80,7 +98,14 @@ public class Magpie4
 			int startPos = findKeyword(statement, "I like", 0) + 6;
 			likes.add(statement.substring(startPos).trim());
 			String word = statement.substring(startPos).trim();
-			response = "I like " + word + " too";
+			doesDislike = DoesMessiDislike(word);
+			if (doesDislike == false){
+			response = "I like " + word + " too!";
+			}
+			else{
+				response = "Oh, I hate " + word + ". ";
+				doesDislike = false;
+			}
 		}
 
 		else if (findKeyword(statement, "I love", 0) >= 0)
@@ -88,7 +113,14 @@ public class Magpie4
 			int startPos = findKeyword(statement, "I love", 0) + 6;
 			likes.add(statement.substring(startPos).trim());
 			String word = statement.substring(startPos).trim();
-			response = "I love " + word + " too";
+			doesDislike = DoesMessiDislike(word);
+			if (doesDislike == false){
+			response = "I love " + word + " too!";
+			}
+			else{
+				response = "Oh, I hate " + word + ". ";
+				doesDislike = false;
+			}
 		}
 
 		else if (findKeyword(statement, "I don't like", 0) >= 0)
@@ -96,7 +128,14 @@ public class Magpie4
 			int startPos = findKeyword(statement, "I don't like", 0) + 12;
 			dislikes.add(statement.substring(startPos).trim());
 			String word = statement.substring(startPos).trim();
-			response = "I don't like " + word + " either";
+			doesDislike = DoesMessiLike(word);
+			if (doesDislike == false){
+			response = "I hate " + word + " too!";
+			}
+			else{
+				response = "Oh, I love " + word + ". ";
+				doesDislike = false;
+			}
 		}
 
 		else if (findKeyword(statement, "I hate", 0) >= 0)
@@ -104,7 +143,14 @@ public class Magpie4
 			int startPos = findKeyword(statement, "I hate", 0) + 6;
 			dislikes.add(statement.substring(startPos).trim());
 			String word = statement.substring(startPos).trim();
-			response = "I hate " + word + " too";
+			doesDislike = DoesMessiLike(word);
+			if (doesDislike == false){
+			response = "I hate " + word + " too!";
+			}
+			else{
+				response = "Oh, I love " + word + ". ";
+				doesDislike = false;
+			}
 		}
 
 		else
@@ -123,6 +169,7 @@ public class Magpie4
 				response = getRandomResponse();
 			}
 		}
+		lastResponse = response;
 		return response;
 	}
 	
@@ -148,6 +195,37 @@ public class Magpie4
 		return "What would it mean to " + restOfStatement + "?";
 	}
 
+	private String transformDoYouQuestion(String question, String response)
+	{
+		question = question.toLowerCase();
+		int DYIndex = question.indexOf("do you ");
+		String statement = question.substring(DYIndex + 7, question.length()-1);
+		if(response.equals("yes")){
+			statement = "I " + statement;
+		}
+		else{
+			statement = "I don't " + statement;
+		}
+		return statement;
+	}
+
+	private boolean DoesMessiLike(String thing){
+		for (String i : messiLikes){
+			if (i.equals(thing)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean DoesMessiDislike(String thing){
+		for (String i : messiDislikes){
+			if (i.equals(thing)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	/**
@@ -264,6 +342,33 @@ public class Magpie4
 		else if (whichResponse == 3)
 		{
 			response = "You don't say.";
+		}
+
+		return response;
+	}
+
+	private String getRandomQuestion()
+	{
+		final int NUMBER_OF_RESPONSES = 4;
+		double r = Math.random();
+		int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
+		String response = "";
+		
+		if (whichResponse == 0)
+		{
+			response = "Do you like PSG?";
+		}
+		else if (whichResponse == 1)
+		{
+			response = "Do you know how many goals i've scored?";
+		}
+		else if (whichResponse == 2)
+		{
+			response = "Do you really think so?";
+		}
+		else if (whichResponse == 3)
+		{
+			response = "Like what?";
 		}
 
 		return response;
