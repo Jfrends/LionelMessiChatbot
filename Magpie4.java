@@ -64,16 +64,16 @@ public class Magpie4
 		else if (findKeyword(statement, "no") >= 0)
 		{
 			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
-				response = getResponse(transformDoYouQuestion(lastResponse, "no"));
+				response = getResponse(transformDoYouQuestion(lastResponse, "no")) + " " + getRandomQuestion();
 			}
 			else{
-				response = "Why so negative?";
+				response = "Why so negative? " + getRandomQuestion();
 			}
 		}
 		else if (findKeyword(statement, "yes") >= 0)
 		{
 			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
-				response = getResponse(transformDoYouQuestion(lastResponse, "yes"));
+				response = getResponse(transformDoYouQuestion(lastResponse, "yes")) + " " + getRandomQuestion();
 			}
 			else{
 				response = "Nice. " + getRandomQuestion();
