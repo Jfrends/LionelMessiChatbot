@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.ArrayList;
+
 /**
  * A program to carry on conversations with a human user.
  * This version:
@@ -16,9 +19,21 @@ public class Magpie4
 	 * Get a default greeting 	
 	 * @return a greeting
 	 */	
+	String name;
+	boolean isInterest = false;
+	String lastResponse = "";
+	boolean justGreeted;
+	boolean doesDislike = false;
+	ArrayList<String> likes = new ArrayList<String>();
+	ArrayList<String> dislikes = new ArrayList<String>();
+	String[] messiLikes = new String[] {"soccer", "scoring", "winning", "barcelona", "psg"};
+	String[] messiDislikes = new String[] {"ronaldo", "losing", "real madrid", "speed"};
+	String[] keywords = new String[] {"goals", "number", "old", "world cup", "born", "ronaldo"};
+
 	public String getGreeting()
 	{
-		return "Hello, let's talk.";
+		justGreeted = true;
+		return "Hello, let's talk. What's your name?";
 	}
 	
 	/**
@@ -36,9 +51,79 @@ public class Magpie4
 			response = "Say something, please.";
 		}
 
-		else if (findKeyword(statement, "no") >= 0)
+		if (justGreeted == true){
+			if (findKeyword(statement, "My name is", 0) >= 0){
+				int startPos = findKeyword(statement, "My name is", 0) + 10;
+				name = statement.substring(startPos).trim();
+			}
+			else{
+				name = statement;
+			}
+			response = "Nice to meet you " + name + ", I'm Lionel Messi, striker for PSG, do you like Soccer?";
+			justGreeted = false;
+		}
+
+		else if (findKeyword(statement.toLowerCase(), "no") >= 0)
 		{
-			response = "Why so negative?";
+			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
+				response = getResponse(transformDoYouQuestion(lastResponse, "no"));
+			}
+			else if (findKeyword(lastResponse.toLowerCase(), "are you") >= 0){
+				response = getResponse(transformAreYouQuestion(lastResponse, "no"));
+			}
+			else{
+				for (String word : keywords){
+					if (findKeyword(statement, word, 0) >= 0){
+						isInterest = true;
+						if (word.equals("goals")){
+							response  = "I've scored 785 goals throughout my career, probably more by now. 778 for FC Barcelona, 51 for PSG, and 164 for my home country, Argentina.";
+						}
+						else if (word.equals("world cup")){
+							response = "I will be playing in the world cup starting on November 20 in Qatar for the Argentinian National Team.";
+						}
+						else if (word.equals("born") || (word.equals("old"))){
+							response = "I am 35 years old, I was born on June 24, 1987 in Rosario, Argentina.";
+						}
+						else if (word.equals("number")){
+							response = "When I played for Barcelona, I was number 10. Now that I am on PSG I wear number 30.";
+						}
+					}
+				}
+				if(isInterest == false){
+					response = "Why so negative? " + getRandomQuestion();
+				}
+			}
+		}
+		else if (findKeyword(statement.toLowerCase(), "yes") >= 0 || findKeyword(statement.toLowerCase(), "yeah") >= 0 || findKeyword(statement.toLowerCase(), "yup") >= 0 || findKeyword(statement.toLowerCase(), "probably") >= 0 || findKeyword(statement.toLowerCase(), "maybe") >= 0)
+		{
+			if (findKeyword(lastResponse.toLowerCase(), "do you") >= 0){
+				response = getResponse(transformDoYouQuestion(lastResponse, "yes"));
+			}
+			else if (findKeyword(lastResponse.toLowerCase(), "are you") >= 0){
+				response = getResponse(transformAreYouQuestion(lastResponse, "yes"));
+			}
+			else{
+				for (String word : keywords){
+					if (findKeyword(statement, word, 0) >= 0){
+						isInterest = true;
+						if (word.equals("goals")){
+							response  = "I've scored 785 goals throughout my career, probably more by now. 778 for FC Barcelona, 51 for PSG, and 164 for my home country, Argentina.";
+						}
+						else if (word.equals("world cup")){
+							response = "I will be playing in the world cup starting on November 20 in Qatar for the Argentinian National Team. You should cheer for us.";
+						}
+						else if (word.equals("born") || (word.equals("old"))){
+							response = "I am 35 years old, I was born on June 24, 1987 in Rosario, Argentina.";
+						}
+						else if (word.equals("number")){
+							response = "When I played for Barcelona, I was number 10. Now that I am on PSG I wear number 30.";
+						}
+					}
+				}
+				if(isInterest == false){
+					response = "Nice. " + getRandomQuestion();
+				}
+			}
 		}
 		else if (findKeyword(statement, "mother") >= 0
 				|| findKeyword(statement, "father") >= 0
@@ -54,10 +139,88 @@ public class Magpie4
 			response = transformIWantToStatement(statement);
 		}
 
+		else if (findKeyword(statement, "why", 0) >= 0)
+		{
+			response = "It's just true, best not to question it.";
+		}
+
+		else if (findKeyword(statement, "I like", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I like", 0) + 6;
+			likes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			doesDislike = DoesMessiDislike(word);
+			if (doesDislike == false){
+			response = "I like " + word + " too! " + getRandomPositiveDetails();
+			}
+			else{
+				response = "Oh, I hate " + word + ". " + getRandomPositiveDetails();
+				doesDislike = false;
+			}
+		}
+
+		else if (findKeyword(statement, "I love", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I love", 0) + 6;
+			likes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			doesDislike = DoesMessiDislike(word);
+			if (doesDislike == false){
+			response = "I love " + word + " too! " + getRandomPositiveDetails();
+			}
+			else{
+				response = "Oh, I hate " + word + ". " + getRandomPositiveDetails();
+				doesDislike = false;
+			}
+		}
+
+		else if (findKeyword(statement, "I don't like", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I don't like", 0) + 12;
+			dislikes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			doesDislike = DoesMessiLike(word);
+			if (doesDislike == false){
+				if (likes.size()>=1){
+					int randIndex = (int) (Math.random() * likes.size());
+					response = "I hate " + word + " too! " + "So you like " + likes.get(randIndex) + " but you don't like " + word + "?";
+				}
+				else{
+					response = "I hate " + word + " too!" + getRandomQuestion();
+				}
+			}
+			else{
+				response = getRandomNegativeDetails() + " I love " + word + ". ";
+				doesDislike = false;
+			}
+		}
+
+		else if (findKeyword(statement, "I hate", 0) >= 0)
+		{
+			int startPos = findKeyword(statement, "I hate", 0) + 6;
+			dislikes.add(statement.substring(startPos).trim());
+			String word = statement.substring(startPos).trim();
+			doesDislike = DoesMessiLike(word);
+			if (doesDislike == false){
+				if (likes.size()>=1){
+					int randIndex = (int) (Math.random() * likes.size());
+					response = "I hate " + word + " too! " + "So you like " + likes.get(randIndex) + " but you don't like " + word + "?";
+				}
+				else{
+					response = "I hate " + word + " too!" + getRandomQuestion();
+				}
+			}
+			else{
+				response = getRandomNegativeDetails() + " I love " + word + ". ";
+				doesDislike = false;
+			}
+		}
+
 		else
 		{
 			// Look for a two word (you <something> me)
 			// pattern
+
 			int psn = findKeyword(statement, "you", 0);
 
 			if (psn >= 0
@@ -69,7 +232,28 @@ public class Magpie4
 			{
 				response = getRandomResponse();
 			}
+
+			for (String word : keywords){
+				if (findKeyword(statement, word, 0) >= 0){
+					if (word.equals("goals")){
+						response  = "I've scored 785 goals throughout my career, probably more by now. 778 for FC Barcelona, 51 for PSG, and 164 for my home country, Argentina.";
+					}
+					else if (word.equals("world cup")){
+						response = "I will be playing in the world cup starting on November 20 in Qatar for the Argentinian National Team.";
+					}
+					else if (word.equals("born") || (word.equals("old"))){
+						response = "I am 35 years old, I was born on June 24, 1987 in Rosario, Argentina.";
+					}
+					else if (word.equals("number")){
+						response = "When I played for Barcelona, I was number 10. Now that I am on PSG I wear number 30.";
+					}
+					else if (word.equals("ronaldo")){
+						response = "Oh, we don't talk about him. I'm better in every single way.";
+					}
+				}
+			}
 		}
+		lastResponse = response;
 		return response;
 	}
 	
@@ -95,6 +279,51 @@ public class Magpie4
 		return "What would it mean to " + restOfStatement + "?";
 	}
 
+	private String transformDoYouQuestion(String question, String response)
+	{
+		question = question.toLowerCase();
+		int DYIndex = question.indexOf("do you ");
+		String statement = question.substring(DYIndex + 7, question.length()-1);
+		if(response.equals("yes")){
+			statement = "I " + statement;
+		}
+		else{
+			statement = "I don't " + statement;
+		}
+		return statement;
+	}
+
+	private String transformAreYouQuestion(String question, String response)
+	{
+		question = question.toLowerCase();
+		int DYIndex = question.indexOf("are you ");
+		String statement = question.substring(DYIndex + 8, question.length()-1);
+		if(response.equals("yes")){
+			statement = "I am " + statement;
+		}
+		else{
+			statement = "I am not " + statement;
+		}
+		return statement;
+	}
+
+	private boolean DoesMessiLike(String thing){
+		for (String i : messiLikes){
+			if (i.equals(thing)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean DoesMessiDislike(String thing){
+		for (String i : messiDislikes){
+			if (i.equals(thing)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 	/**
@@ -198,19 +427,100 @@ public class Magpie4
 		
 		if (whichResponse == 0)
 		{
-			response = "Interesting, tell me more.";
+			response = "Interesting, tell me more. " + getRandomQuestion();
 		}
 		else if (whichResponse == 1)
 		{
-			response = "Hmmm.";
+			response = "Hmmm. " + getRandomQuestion();
 		}
 		else if (whichResponse == 2)
 		{
-			response = "Do you really think so?";
+			response = "Do you really think so? " + getRandomQuestion();
 		}
 		else if (whichResponse == 3)
 		{
-			response = "You don't say.";
+			response = "You don't say. " + getRandomQuestion();
+		}
+
+		return response;
+	}
+
+	private String getRandomQuestion()
+	{
+		final int NUMBER_OF_RESPONSES = 4;
+		double r = Math.random();
+		int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
+		String response = "";
+		
+		if (whichResponse == 0)
+		{
+			response = "Do you like PSG?";
+		}
+		else if (whichResponse == 1)
+		{
+			response = "Do you know how many goals I've scored?";
+		}
+		else if (whichResponse == 2)
+		{
+			response = "Are you going to watch the world cup?";
+		}
+		else if (whichResponse == 3)
+		{
+			response = "Do you like Ronaldo?";
+		}
+
+		return response;
+	}
+
+	private String getRandomPositiveDetails()
+	{
+		final int NUMBER_OF_RESPONSES = 4;
+		double r = Math.random();
+		int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
+		String response = "";
+		
+		if (whichResponse == 0)
+		{
+			response = "Why?";
+		}
+		else if (whichResponse == 1)
+		{
+			response = "What makes you like it?";
+		}
+		else if (whichResponse == 2)
+		{
+			response = "What's your favorite part?";
+		}
+		else if (whichResponse == 3)
+		{
+			response = "Who's your favorite player?";
+		}
+
+		return response;
+	}
+
+	private String getRandomNegativeDetails()
+	{
+		final int NUMBER_OF_RESPONSES = 4;
+		double r = Math.random();
+		int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
+		String response = "";
+		
+		if (whichResponse == 0)
+		{
+			response = "Since when?";
+		}
+		else if (whichResponse == 1)
+		{
+			response = "What makes you dislike it?";
+		}
+		else if (whichResponse == 2)
+		{
+			response = "Why don't you?";
+		}
+		else if (whichResponse == 3)
+		{
+			response = "How come?";
 		}
 
 		return response;
