@@ -20,6 +20,7 @@ public class Magpie4
 	 * @return a greeting
 	 */	
 	String name;
+	int whichQuestion = 0;
 	boolean isInterest = false;
 	String lastResponse = "";
 	boolean justGreeted;
@@ -447,28 +448,32 @@ public class Magpie4
 
 	private String getRandomQuestion()
 	{
-		final int NUMBER_OF_RESPONSES = 4;
-		double r = Math.random();
-		int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
 		String response = "";
 		
-		if (whichResponse == 0)
+		if (whichQuestion == 0)
 		{
 			response = "Do you like PSG?";
 		}
-		else if (whichResponse == 1)
+		else if (whichQuestion == 1)
 		{
 			response = "Do you know how many goals I've scored?";
 		}
-		else if (whichResponse == 2)
+		else if (whichQuestion == 2)
 		{
 			response = "Are you going to watch the world cup?";
 		}
-		else if (whichResponse == 3)
+		else if (whichQuestion == 3)
 		{
 			response = "Do you like Ronaldo?";
 		}
-
+		else if (whichQuestion == 4)
+		{
+			response = "Are you a fan of me?";
+		}
+		else{
+			response = "I'm out of questions. Ask me some.";
+		}
+		whichQuestion++;
 		return response;
 	}
 
